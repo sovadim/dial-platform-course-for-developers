@@ -52,7 +52,7 @@ protocol.
 | [t6](tasks/t6_embeddings_and_frameworks/README.md)     | Embeddings & Frameworks   | Build a RAG app with LangChain against DIAL's embedding endpoint       |
 | [t7](tasks/t7_buttons/README.md)                       | Buttons                   | Expose a configuration endpoint and render interactive buttons in Chat |
 | [t8](tasks/t8_agent/README.md)                         | Agent — Capstone          | Build a multi-tool streaming agent combining all platform capabilities |
-| [Extra task 1](tasks/t_extra_2_chat_overlay/README.md) | Themes *(optional)*       | Customize Chat's color palette and branding                            |
+| [Extra task 1](tasks/t_extra_1_themes/README.md) | Themes *(optional)*       | Customize Chat's color palette and branding                            |
 | [Extra task 2](tasks/t_extra_2_chat_overlay/README.md) | Chat Overlay *(optional)* | Embed DIAL Chat into an external web page via the overlay library      |
 
 ---

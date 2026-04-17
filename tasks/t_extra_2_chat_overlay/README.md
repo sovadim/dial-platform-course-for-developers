@@ -1,228 +1,392 @@
-# Custom Themes
+## Chat Overlay
 
 ## This task is optional and intended primarily for Frontend Engineers!
 
-DIAL Chat's appearance is fully customizable through themes. Each theme defines a complete color
-palette for backgrounds, text, borders, and interactive controls. DIAL provides two built-in
-themes — **Dark** (default) and **Light** — and you can add any number of custom themes by
-editing the themes service configuration.
+We integrate DIAL Chat into other applications with [Chat Overlay](https://docs.dialx.ai/tutorials/developers/chat/chat-design#overlay).
 
-In this task you will add a **Pink & Sky** theme to your local DIAL environment.
+More details of [Chat Overlay](https://github.com/epam/ai-dial-chat/blob/development/libs/overlay/README.md)
 
----
-
-## Steps
-
-1. **Add a volume mount** to the `themes` service in [docker-compose.yml](/docker-compose.yml) to inject your local
-   [themes-config.json](themes-config.json) into the container:
-
-   ```yaml
-   volumes:
-     - ./tasks/t8_themes/themes-config.json:/var/www/config.json:ro
+1. Set env variables to `chat` service in [docker-compose.yml](/docker-compose.yml):
+    - IS_IFRAME: true
+    - ALLOWED_IFRAME_ORIGINS: http://localhost:5173/
+2. Run in terminal:
+   ```bash
+   npm create vite@latest overlay-app 
    ```
-
-   Final `themes` service block:
-   ```yaml
-   themes:
-     image: epam/ai-dial-chat-themes:latest
-     platform: linux/amd64
-     ports:
-       - "3001:8080"
-     volumes:
-       - ./tasks/t8_themes/themes-config.json:/var/www/config.json:ro
+   and choose options bellow:
+    - project **Vanilla**
+    - **js** (not ts)
+    - **no** (just create project and that is all)
+      After that you should be able to see the `overlay-app` folder [overlay-app](/overlay-app)
+3. Run in terminal: 
+   ```bash
+   
+   cd overlay-app
    ```
-
-2. **Add the Pink & Sky theme** to [themes-config.json](themes-config.json) inside the
-   `"themes"` array:
-
-   ```json
-   {
-     "displayName": "Pink & Sky",
-     "id": "pink-sky",
-     "app-logo": "",
-     "colors": {
-       "bg-layer-0": "#FAFCFF",
-       "bg-layer-1": "#F5F0FA",
-       "bg-layer-2": "#EEF5FF",
-       "bg-layer-3": "#FAFCFF",
-       "bg-layer-4": "#C7DFFE",
-
-       "bg-blackout": "#2A1A4A4D",
-       "bg-error": "#F3D6D8",
-       "bg-warning": "#FAF0CF",
-       "bg-info": "#DBEEFF",
-       "bg-success": "#D1FAE5",
-
-       "bg-accent-primary": "#E8409A",
-       "bg-accent-secondary": "#38B6F0",
-       "bg-accent-tertiary": "#B56DF4",
-       "bg-accent-primary-alpha": "#E8409A1A",
-       "bg-accent-secondary-alpha": "#38B6F01A",
-       "bg-accent-tertiary-alpha": "#B56DF41A",
-
-       "bg-overlay": "#FAFCFF4D",
-
-       "text-primary": "#1A1030",
-       "text-secondary": "#8A8FA8",
-       "text-error": "#C0323A",
-       "text-warning": "#C49212",
-       "text-info": "#38B6F0",
-       "text-success": "#059669",
-       "text-accent-primary": "#E8409A",
-       "text-accent-secondary": "#1E9ED6",
-       "text-accent-tertiary": "#9B4FE0",
-
-       "stroke-primary": "#D4C8EC",
-       "stroke-secondary": "#E2D8F5",
-       "stroke-tertiary": "#EEF5FF",
-       "stroke-hover": "#1A1030",
-       "stroke-error": "#C0323A",
-       "stroke-warning": "#C49212",
-       "stroke-info": "#38B6F0",
-       "stroke-success": "#059669",
-       "stroke-accent-primary": "#E8409A",
-       "stroke-accent-secondary": "#38B6F0",
-       "stroke-accent-tertiary": "#B56DF4",
-
-       "controls-bg-accent": "#E8409A",
-       "controls-bg-accent-hover": "#C82D82",
-       "controls-bg-disable": "#A0A5BE",
-       "controls-text-permanent": "#FFFFFF",
-       "controls-text-disable": "#D4C8EC",
-       "bg-model-icon": "#FFFFFF"
-     },
-     "topicColors": {
-       "bg-topic-default": "#E8409A1A",
-       "stroke-topic-default": "#E8409A",
-       "bg-topic-business": "#E8409A1A",
-       "stroke-topic-business": "#E8409A",
-       "bg-topic-development": "#38B6F026",
-       "stroke-topic-development": "#38B6F0",
-       "bg-topic-user-experience": "#FF4E7826",
-       "stroke-topic-user-experience": "#FF4E78",
-       "bg-topic-analysis": "#B56DF426",
-       "stroke-topic-analysis": "#B56DF4",
-       "bg-topic-sql": "#C7925A26",
-       "stroke-topic-sql": "#C7925A",
-       "bg-topic-sdlc": "#FAF0CF",
-       "stroke-topic-sdlc": "#C49212",
-       "bg-topic-talk-to-your-data": "#E8409A26",
-       "stroke-topic-talk-to-your-data": "#E8409A",
-       "bg-topic-rag": "#38B6F026",
-       "stroke-topic-rag": "#1E9ED6",
-       "bg-topic-text-generation": "#B56DF426",
-       "stroke-topic-text-generation": "#B56DF4",
-       "bg-topic-image-generation": "#FF6B0026",
-       "stroke-topic-image-generation": "#FF6B00",
-       "bg-topic-image-recognition": "#38B6F026",
-       "stroke-topic-image-recognition": "#38B6F0"
-     },
-     "authColors": {
-       "bg-auth-layer-0": "#FAFCFF",
-       "bg-auth-layer-1": "#F0E8F8"
-     }
+4. Run in terminal (to install base dependencies):
+   ```bash
+   npm i
+   ``` 
+5. Run in terminal (to install DIAL overlay library):
+   ```bash
+   npm i @epam/ai-dial-overlay
+   ``` 
+6. Replace content in [overlay-app/src/main.js](/overlay-app/src/main.js) to:
+   ```js
+   import './style.css'
+   import { ChatOverlay } from "@epam/ai-dial-overlay";
+   
+   document.querySelector('#app').innerHTML = `
+     <div class="main-panel">
+       <header class="app-header">
+         <div class="header-brand">
+           <div class="brand-logo">
+             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+               <rect width="20" height="20" rx="4" fill="#2563eb"/>
+               <path d="M5 10h10M10 5v10" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+             </svg>
+             <span class="brand-name">MyApp</span>
+           </div>
+           <nav class="header-nav">
+             <a href="#" class="nav-link">Dashboard</a>
+             <a href="#" class="nav-link">Projects</a>
+             <a href="#" class="nav-link">Analytics</a>
+             <a href="#" class="nav-link">Settings</a>
+           </nav>
+         </div>
+         <div class="header-actions">
+           <span class="user-badge">Developer</span>
+         </div>
+       </header>
+   
+       <div class="main-content">
+         <div class="placeholder-icon">
+           <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+             <rect width="64" height="64" rx="16" fill="#1e2130"/>
+             <rect x="12" y="12" width="40" height="6" rx="3" fill="#2d3148"/>
+             <rect x="12" y="24" width="28" height="6" rx="3" fill="#2d3148"/>
+             <rect x="12" y="36" width="34" height="6" rx="3" fill="#2d3148"/>
+             <rect x="12" y="48" width="20" height="4" rx="2" fill="#2d3148"/>
+           </svg>
+         </div>
+         <h2 class="placeholder-title">Here could be your main functional</h2>
+         <p class="placeholder-subtitle">
+           Your application content lives here — dashboards, editors, data tables, or any UI.<br/>
+           DIAL AI Assistant is available as a persistent side-panel at any time.
+         </p>
+         <div class="placeholder-tags">
+           <span class="tag">Integrate anywhere</span>
+           <span class="tag">Zero configuration</span>
+           <span class="tag">Full DIAL API</span>
+         </div>
+       </div>
+     </div>
+   
+     <aside class="chat-panel">
+       <div class="chat-header">
+         <div class="chat-header-left">
+           <span class="status-dot"></span>
+           <span class="chat-title">DIAL AI Assistant</span>
+         </div>
+         <span class="powered-badge">POWERED BY DIAL</span>
+       </div>
+       <div id="chat-container"></div>
+     </aside>
+   `;
+   
+   const container = document.querySelector('#chat-container');
+   
+   const run = async () => {
+       const overlay = new ChatOverlay(container, {
+           hostDomain: window.location.origin,
+           domain: "http://localhost:3000",
+           requestTimeout: 20000,
+           enabledFeatures: [
+               "conversations-section",
+               "prompts-section",
+               "top-settings",
+               "top-clear-conversation",
+               "top-chat-info",
+               "top-chat-model-settings",
+               "empty-chat-settings",
+               "header",
+               "footer",
+               "request-api-key",
+               "report-an-issue",
+               "likes",
+           ],
+           loaderStyles: {
+               background: "#13141a",
+           },
+       });
+   
+       await overlay.ready();
+   };
+   
+   run();
+   ```
+   
+7. Replace content in [overlay-app/src/style.css](/overlay-app/src/style.css) to:
+   ```css
+   /* ============================================================
+      Reset & base
+      ============================================================ */
+   *, *::before, *::after {
+     box-sizing: border-box;
+     margin: 0;
+     padding: 0;
+   }
+   
+   html, body {
+     height: 100%;
+     overflow: hidden;
+     font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+     -webkit-font-smoothing: antialiased;
+     -moz-osx-font-smoothing: grayscale;
+     background: #0f1117;
+     color: #94a3b8;
+   }
+   
+   /* ============================================================
+      Root layout — flex row splits viewport ~70 / ~30
+      ============================================================ */
+   #app {
+     display: flex;
+     flex-direction: row;
+     height: 100%;
+     width: 100%;
+     overflow: hidden;
+   }
+   
+   /* ============================================================
+      Left panel — main application placeholder (~70%)
+      ============================================================ */
+   .main-panel {
+     flex: 1 1 0;
+     min-width: 0;
+     display: flex;
+     flex-direction: column;
+     background-color: #0f1117;
+     background-image: radial-gradient(circle, #1e2130 1px, transparent 1px);
+     background-size: 28px 28px;
+     overflow: hidden;
+     position: relative;
+   }
+   
+   /* Mock app header */
+   .app-header {
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+     padding: 0 24px;
+     height: 56px;
+     flex-shrink: 0;
+     background: rgba(15, 17, 23, 0.9);
+     backdrop-filter: blur(8px);
+     border-bottom: 1px solid #1e2130;
+     position: relative;
+     z-index: 1;
+   }
+   
+   .header-brand {
+     display: flex;
+     align-items: center;
+     gap: 32px;
+   }
+   
+   .brand-logo {
+     display: flex;
+     align-items: center;
+     gap: 8px;
+   }
+   
+   .brand-name {
+     font-size: 15px;
+     font-weight: 600;
+     color: #e2e8f0;
+     letter-spacing: 0.3px;
+   }
+   
+   .header-nav {
+     display: flex;
+     align-items: center;
+     gap: 4px;
+   }
+   
+   .nav-link {
+     color: #64748b;
+     text-decoration: none;
+     font-size: 13px;
+     font-weight: 500;
+     padding: 6px 12px;
+     border-radius: 6px;
+     transition: color 0.15s, background 0.15s;
+   }
+   
+   .nav-link:hover {
+     color: #cbd5e1;
+     background: #1e2130;
+   }
+   
+   .header-actions {
+     display: flex;
+     align-items: center;
+   }
+   
+   .user-badge {
+     font-size: 11px;
+     font-weight: 600;
+     letter-spacing: 0.5px;
+     text-transform: uppercase;
+     color: #475569;
+     background: #1e2130;
+     border: 1px solid #2d3148;
+     padding: 4px 10px;
+     border-radius: 20px;
+   }
+   
+   /* Centered placeholder content */
+   .main-content {
+     flex: 1 1 0;
+     min-height: 0;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+     gap: 20px;
+     padding: 40px 60px;
+     text-align: center;
+   }
+   
+   .placeholder-icon {
+     margin-bottom: 4px;
+     opacity: 0.7;
+   }
+   
+   .placeholder-title {
+     font-size: 22px;
+     font-weight: 500;
+     color: #cbd5e1;
+     letter-spacing: -0.3px;
+     line-height: 1.3;
+   }
+   
+   .placeholder-subtitle {
+     font-size: 14px;
+     line-height: 1.7;
+     color: #475569;
+     max-width: 460px;
+   }
+   
+   .placeholder-tags {
+     display: flex;
+     gap: 10px;
+     flex-wrap: wrap;
+     justify-content: center;
+     margin-top: 8px;
+   }
+   
+   .tag {
+     font-size: 11px;
+     font-weight: 600;
+     letter-spacing: 0.5px;
+     text-transform: uppercase;
+     color: #3b82f6;
+     background: rgba(59, 130, 246, 0.08);
+     border: 1px solid rgba(59, 130, 246, 0.2);
+     padding: 5px 12px;
+     border-radius: 20px;
+   }
+   
+   /* ============================================================
+      Right panel — DIAL chat sidebar (40%)
+      ============================================================ */
+   .chat-panel {
+     width: 40%;
+     flex-shrink: 0;
+     display: flex;
+     flex-direction: column;
+     height: 100%;
+     background: #13141a;
+     border-left: 1px solid #1e2130;
+     overflow: hidden;
+   }
+   
+   .chat-header {
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+     padding: 0 16px;
+     height: 48px;
+     flex-shrink: 0;
+     background: #13141a;
+     border-bottom: 1px solid #1e2130;
+   }
+   
+   .chat-header-left {
+     display: flex;
+     align-items: center;
+     gap: 8px;
+   }
+   
+   .status-dot {
+     width: 8px;
+     height: 8px;
+     border-radius: 50%;
+     background: #22c55e;
+     box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+     flex-shrink: 0;
+   }
+   
+   .chat-title {
+     font-size: 13px;
+     font-weight: 600;
+     color: #e2e8f0;
+     letter-spacing: 0.2px;
+   }
+   
+   .powered-badge {
+     font-size: 9px;
+     font-weight: 700;
+     letter-spacing: 1px;
+     text-transform: uppercase;
+     color: #475569;
+     background: #1e2130;
+     border: 1px solid #2d3148;
+     padding: 3px 8px;
+     border-radius: 4px;
+   }
+   
+   /* CRITICAL: height chain must be fully computed for the iframe to render.
+      min-height: 0 overrides flex's implicit min-height: auto,
+      allowing the container to shrink and the iframe to fill it. */
+   #chat-container {
+     flex: 1;
+     min-height: 0;
+     overflow: hidden;
+     display: flex;
+     flex-direction: column;
+     background: #13141a;
+   }
+   
+   #chat-container iframe {
+     width: 100% !important;
+     height: 100% !important;
+     border: none;
+     display: block;
    }
    ```
-
-   > **Check that the JSON is valid** before saving. A syntax error in `themes-config.json`
-   > silently prevents your custom theme from loading — DIAL Chat falls back to built-in
-   > defaults without showing an error. Use VS Code's built-in validator or run:
-
-3. **Restart the `themes` container** to pick up the updated config:
-
-4. **Restart the `chat` service** so it re-fetches the theme list from the themes service:
-
-5. **Test:** Open [DIAL Chat](http://localhost:3000) → click your user avatar (top right) →
-   **Settings** → under **Theme** choose **Pink & Sky**
-
-<details><summary>Result:</summary>
-
-![](_screenshots/change-theme.png)
-![](_screenshots/new-theme.png)
-
-</details>
-
----
-
-<details><summary>Pitfalls & Common Mistakes</summary>
-
-### 1. Theme not appearing after adding to `themes-config.json`
-
-The chat service caches the themes configuration for 24 hours. Simply changing the JSON file is
-not enough — you must restart both the `themes` container **and** the `chat` service after every
-change.
-
-```bash
-docker compose stop themes && docker compose up -d themes
-docker compose restart chat
-```
-
----
-
-### 2. Invalid JSON silently falls back to built-in themes
-
-A single missing comma or unmatched bracket prevents the entire `themes-config.json` from
-loading. DIAL Chat shows no error — it just displays only the built-in Dark and Light themes.
-
----
-
-### 3. Volume mount path is wrong
-
-The path on the left side of `:` in the `volumes` entry must be relative to the location of
-`docker-compose.yml` (the repo root). If the path is incorrect the container starts normally
-but loads its built-in defaults instead of your file.
-
-Correct — path relative to `docker-compose.yml`:
-
-```yaml
-volumes:
-  - ./tasks/t8_themes/themes-config.json:/var/www/config.json:ro
-```
-
-Wrong — missing directory prefix, wrong mount target:
-
-```yaml
-volumes:
-  - themes-config.json:/var/www/themes-config.json
-```
-
----
-
-### 4. `id` clashes with a built-in theme
-
-Each theme must have a unique `id`. Using `"id": "dark"` or `"id": "light"` for a custom theme
-will silently replace the built-in theme with the same ID. Always use a distinct slug, e.g.
-`"pink-sky"`, `"ocean-blue"`.
-
-</details>
-
----
-
-## Optional Task: Create Your Own Theme
-
-Design and register a completely custom color scheme:
-
-1. In [themes-config.json](themes-config.json) add a new object to the `"themes"` array.
-   Copy the **Pink & Sky** or **Light** theme as a starting point.
-
-2. Choose your own `displayName`, a unique `id` slug, and replace the hex color values.
-
-3. Think about visual consistency when picking colors:
-   - `bg-layer-0` is the deepest background (page); `bg-layer-4` is the highest surface
-     (floating panels, tooltips). For a light theme layers go from lightest to slightly darker;
-     for a dark theme from darkest to lighter.
-   - `bg-accent-primary` drives most interactive elements — buttons, links, active states —
-     so it should stand out clearly against both `bg-layer-1` and `bg-layer-2`.
-   - `text-primary` must have sufficient contrast against `bg-layer-2` for readability
-     (WCAG AA requires a minimum ratio of 4.5:1 for normal text).
-
-4. Restart both services and apply your theme in Chat Settings to verify it looks as expected:
-
+   
+8. Run in terminal (to run overlay app):
    ```bash
-   docker compose stop themes && docker compose up -d themes
-   docker compose restart chat
+   npm run dev
    ```
+9. Delete `chat` container and run it again (to fetch new env variables)
 
-> Tip: online tools such as [coolors.co](https://coolors.co) or
-> [contrast-ratio.com](https://contrast-ratio.com) can help you build a harmonious palette and
-> check text/background contrast ratios before committing to a set of hex values.
+10. Open http://localhost:5173/ in browser and test it
+
+<details><summary>Result samples</summary>
+
+![Theme 1](_screenshots/overlay-sample.png)
+
+</details>
