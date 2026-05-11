@@ -19,7 +19,7 @@ services:
     ports:
       - "8080:8080"
     image: epam/ai-dial-core:latest
-    platform: linux/amd64
+    platform: linux/arm64
     environment:
       'AIDIAL_SETTINGS': '/opt/settings/settings.json'
       'JAVA_OPTS': '-Dgflog.config=/opt/settings/gflog.xml'
