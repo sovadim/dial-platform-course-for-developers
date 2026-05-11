@@ -1,5 +1,37 @@
 {
   "models": {
-
+    "gpt-5.2": {
+      "displayName": "GPT 5.2",
+      "description": "GPT‑5.2 is OpenAI’s most capable and efficient frontier model, built to deliver faster, more reliable results across complex professional and agentic workflows.",
+      "endpoint": "http://adapter-dial-openai:5000/openai/deployments/gpt-5.2/chat/completions",
+      "overrideName": "gpt-5.2",
+      "responsesEndpoint": "http://adapter-dial-openai:5000/openai/v1/responses",
+      "iconUrl": "http://localhost:3001/gpt3.svg",
+      "type": "chat"
+    },
+    "gpt-image-1.5": {
+      "displayName": "GPT Image 1.5",
+      "description": "GPT Image 1.5 is OpenAI’s most capable model for Image generation.",
+      "endpoint": "http://adapter-dial-openai:5000/openai/deployments/gpt-image-1.5/chat/completions",
+      "iconUrl": "http://localhost:3001/gpt3.svg",
+      "type": "chat"
+    },
+    "gpt-4o-mini-tts": {
+      "displayName": "GPT 4o Mini TTS",
+      "description": "Converts Text to Audio (speech)",
+      "endpoint": "http://adapter-dial-openai:5000/openai/deployments/gpt-4o-mini-tts/chat/completions",
+      "iconUrl": "http://localhost:3001/gpt3.svg",
+      "type": "chat"
+    },
+    "gpt-4o-mini-transcribe": {
+      "displayName": "GPT 4o Mini STT",
+      "description": "Transcribes Audio to Text",
+      "endpoint": "http://adapter-dial-openai:5000/openai/deployments/gpt-4o-mini-transcribe/chat/completions",
+      "iconUrl": "http://localhost:3001/gpt3.svg",
+      "type": "chat",
+      "inputAttachmentTypes": [
+        "audio/mpeg"
+      ]
+    }
   }
 }
