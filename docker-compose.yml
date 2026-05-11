@@ -11,7 +11,7 @@ services:
       --maxmemory-policy volatile-lfu
       --save ""
       --appendonly no
-      --logleverl warning
+      --loglevel warning
     mem_limit: 2200M
 
   core:
