@@ -1,6 +1,13 @@
+from typing import Union
+
 from aidial_client import AsyncDial
 
 from aidial_sdk.chat_completion import ChatCompletion, Request, Response
+from aidial_sdk.deployment.configuration import ConfigurationRequest, ConfigurationResponse
+
+
+import os
+
 
 SYSTEM_PROMPT = """You are an essay-focused assistant. Respond to every request by writing a **short essay** of up to 100 tokens.
 
@@ -24,30 +31,53 @@ class EssayAssistantApplication(ChatCompletion):
         self.model = model
 
     async def chat_completion(self, request: Request, response: Response) -> None:
+        dial_api_key: str = os.getenv("DIAL_API_KEY")
+        if not dial_api_key:
+            raise ValueError("DIAL_API_KEY environment variable is not set")
+
+        client: AsyncDial = AsyncDial(
+            api_key=dial_api_key,
+            base_url="http://localhost:8080",
+        )
+
         print(request.messages[-1])
 
-        # TODO 1: Create an AsyncDial client and store it in `client`.
-        #   - base_url: "http://localhost:8080"  (DIAL Core; use localhost since this app runs outside Docker)
-        #   - api_key: "dial_api_key"
-        #   - api_version: "2025-01-01-preview"
+        with response.create_single_choice() as choice:
+            chunks = await client.chat.completions.create(
+                deployment_name=self.model,
+                stream=True,
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": request.messages[-1].content}
+                ]
+            )
 
-        # TODO 2: Open a single-choice response using response.create_single_choice() as a context manager.
-        #   Use `with response.create_single_choice() as choice:` and put TODOs 3-4 inside the block.
+            async for chunk in chunks:
+                if chunk.choinces and len(chunk.choices) > 0:
+                    delta = chunk.choices[0].delta
+                    if delta and delta.content:
+                        choice.append_content(delta.content)
 
-            # TODO 3: Create a streaming chat completion request via client.chat.completions.create().
-            #   Pass:
-            #   - deployment_name: self.model
-            #   - stream: True
-            #   - messages: a list with two entries —
-            #       {"role": "system", "content": SYSTEM_PROMPT}
-            #       {"role": "user",   "content": request.messages[-1].content}
-            #   Store the result in `chunks`.
-
-            # TODO 4: Iterate the async stream: `async for chunk in chunks`.
-            #   For each chunk:
-            #   - Check that chunk.choices is non-empty
-            #   - Extract delta = chunk.choices[0].delta
-            #   - Only call choice.append_content(delta.content) if both delta and delta.content are not None
-            #   Hint: some chunks carry no content (e.g. the final usage chunk) — always guard before appending.
-
-    # Task 7: add configuration() here👇
+    async def configuration(self, request: ConfigurationRequest) -> Union[ConfigurationResponse, dict]:
+        return {
+            "type": "object",
+            "properties": {
+                "conversation_starter_button": {
+                    "description": "Conversation starters",
+                    "type": "number",
+                    "dial:widget": "buttons",
+                    "oneOf": [
+                        {
+                            "const": 1,
+                            "title": "About Armenian life",
+                            "dial:widgetOptions": {"populateText": "Essay about life in Armenia"}
+                        },
+                        {
+                            "const": 2,
+                            "title": "About summer",
+                            "dial:widgetOptions": {"populateText": "Generate essay about summer vacation"}
+                        }
+                    ]
+                }
+            }
+        }

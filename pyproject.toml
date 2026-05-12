@@ -1,0 +1,13 @@
+[project]
+name = "dial-platform-course-for-developers"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aidial-client==0.6.2",
+    "aidial-sdk==0.34.0",
+    "faiss-cpu==1.13.2",
+    "langchain-community==0.4.1",
+    "langchain-openai==1.1.12",
+]
