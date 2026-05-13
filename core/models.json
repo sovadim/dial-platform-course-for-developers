@@ -1,5 +1,14 @@
 {
   "models": {
+    "gpt-4o": {
+      "displayName": "GPT 4o",
+      "description": "GPT‑4o",
+      "endpoint": "http://adapter-dial-openai:5000/openai/deployments/gpt-4o/chat/completions",
+      "overrideName": "gpt-4o",
+      "responsesEndpoint": "http://adapter-dial-openai:5000/openai/v1/responses",
+      "iconUrl": "http://localhost:3001/gpt3.svg",
+      "type": "chat"
+    },
     "gpt-5.2": {
       "displayName": "GPT 5.2",
       "description": "GPT‑5.2 is OpenAI’s most capable and efficient frontier model, built to deliver faster, more reliable results across complex professional and agentic workflows.",
