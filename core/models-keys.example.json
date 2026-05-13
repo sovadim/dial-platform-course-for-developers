@@ -1,0 +1,13 @@
+{
+  "models": {
+    "<model>": {
+      "upstreams": [
+        {
+          "endpoint": "https://<host>/openai/deployments/<model>/chat/completions",
+          "responsesEndpoint": "https://<host>/v1/responses",
+          "key": "<dial_api_key>"
+        }
+      ]
+    }
+  }
+}
