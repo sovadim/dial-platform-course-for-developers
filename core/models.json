@@ -41,6 +41,11 @@
       "inputAttachmentTypes": [
         "audio/mpeg"
       ]
+    },
+    "text-embedding-3-small": {
+      "type": "embedding",
+      "overrideName": "text-embedding-3-small",
+      "endpoint": "http://adapter-dial-openai:5000/openai/deployments/text-embedding-3-small/embeddings"
     }
   }
 }
