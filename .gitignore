@@ -5,6 +5,9 @@ core/models-keys.json
 venv/
 env/
 
+# Env
+.env
+
 # IDE
 .idea/
 .vscode/

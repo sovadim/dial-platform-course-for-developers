@@ -6,9 +6,6 @@ from aidial_sdk.chat_completion import ChatCompletion, Request, Response
 from aidial_sdk.deployment.configuration import ConfigurationRequest, ConfigurationResponse
 
 
-import os
-
-
 SYSTEM_PROMPT = """You are an essay-focused assistant. Respond to every request by writing a **short essay** of up to 100 tokens.
 
 **Structure:**

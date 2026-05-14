@@ -4,6 +4,9 @@ from aidial_sdk import DIALApp
 
 from tasks.t3_add_applications.essay.essay_assistant import EssayAssistantApplication
 
+from dotenv import load_dotenv
+load_dotenv()
+
 
 app: DIALApp = DIALApp()
 
