@@ -24,6 +24,16 @@
       "displayName": "Calculator Agent",
       "description": "AI assistant that can answer general questions and perform mathematical calculations.",
       "endpoint": "http://host.docker.internal:5028/openai/deployments/calculator-agent/chat/completions"
+    },
+    "files-assistant": {
+      "displayName": "Files Agent",
+      "description": "AI assistant that can answer general questions, works with pictures as input content, and converts answers to audio",
+      "endpoint": "http://host.docker.internal:5029/openai/deployments/files-assistant/chat/completions",
+      "inputAttachmentTypes": [
+        "image/png",
+        "image/jpg"
+      ],
+      "maxInputAttachments": 3
     }
   }
 }
