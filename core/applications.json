@@ -14,6 +14,16 @@
       "displayName": "Essay Assistant",
       "description": "Essay Assistant. Always answers with essay.",
       "endpoint": "http://host.docker.internal:5026/openai/deployments/essay-assistant-sonnet/chat/completions"
+    },
+    "poem-assistant": {
+      "displayName": "Poem Assistant",
+      "description": "Poem Assistant. Always answers with poem.",
+      "endpoint": "http://host.docker.internal:5027/openai/deployments/poem-assistant/chat/completions"
+    },
+    "calculator-agent": {
+      "displayName": "Calculator Agent",
+      "description": "AI assistant that can answer general questions and perform mathematical calculations.",
+      "endpoint": "http://host.docker.internal:5028/openai/deployments/calculator-agent/chat/completions"
     }
   }
 }

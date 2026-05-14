@@ -6,9 +6,6 @@ from aidial_sdk.chat_completion import ChatCompletion, Request, Response
 from aidial_sdk.deployment.configuration import ConfigurationRequest, ConfigurationResponse
 
 
-import os
-
-
 SYSTEM_PROMPT = """You are an essay-focused assistant. Respond to every request by writing a **short essay** of up to 100 tokens.
 
 **Structure:**
@@ -31,13 +28,10 @@ class EssayAssistantApplication(ChatCompletion):
         self.model = model
 
     async def chat_completion(self, request: Request, response: Response) -> None:
-        dial_api_key: str = os.getenv("DIAL_API_KEY")
-        if not dial_api_key:
-            raise ValueError("DIAL_API_KEY environment variable is not set")
-
         client: AsyncDial = AsyncDial(
-            api_key=dial_api_key,
             base_url="http://localhost:8080",
+            api_key="dial_api_key",
+            api_version="2025-01-01-preview",
         )
 
         print(request.messages[-1])
@@ -53,7 +47,7 @@ class EssayAssistantApplication(ChatCompletion):
             )
 
             async for chunk in chunks:
-                if chunk.choinces and len(chunk.choices) > 0:
+                if chunk.choices and len(chunk.choices) > 0:
                     delta = chunk.choices[0].delta
                     if delta and delta.content:
                         choice.append_content(delta.content)

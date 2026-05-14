@@ -15,20 +15,7 @@
 
 ## About
 
-This repository contains hands-on tasks for learning the [EPAM DIAL](https://dialx.ai/) platform. DIAL is a
-vendor-neutral AI gateway that exposes a single OpenAI-compatible API while routing requests to models from OpenAI,
-Anthropic, Google, and other providers. On top of the gateway you can build custom AI applications using the DIAL SDK.
-
-The tasks take you from spinning up the platform locally all the way to building a multi-tool streaming agent. Each task
-directory contains step-by-step instructions (`README.md`) and the completed reference implementation to work toward.
-
-## Who This Is For
-
-Backend and fullstack developers who want to integrate LLMs into products using the DIAL platform.
-
-**Prerequisite:** familiarity with the OpenAI Chat Completions API — request/response structure, streaming (SSE), and
-tool calls. DIAL is wire-compatible with the OpenAI API, so if you have worked with it before you already understand the
-protocol.
+This is a fork of the DIAL Platform Course with my walk-through.
 
 ## Platform Components
 
@@ -40,7 +27,7 @@ protocol.
 | Model adapters          | Thin proxies for OpenAI, AWS Bedrock (Anthropic), VertexAI (Gemini)             |
 | DIAL SDK (`aidial-sdk`) | Python SDK for building custom AI applications behind the gateway               |
 
-## Tasks
+## Course Outline
 
 | #                                                      | Topic                     | What you will do                                                       |
 |--------------------------------------------------------|---------------------------|------------------------------------------------------------------------|
@@ -57,34 +44,30 @@ protocol.
 
 ---
 
-## Getting Started
+## How to run
 
-### 0. ⭐️ **Star the repository** - it will help us grow ⭐️
-
-### 1. ⑃ Fork and clone the repository
-
-### 2. Create a virtual environment
-
+With Docker:
 ```bash
-python -m venv .venv
+docker compose up -d --build
 ```
 
-### 3. Activate the virtual environment
-
-**macOS / Linux:**
-
+With podman:
 ```bash
-source .venv/bin/activate
+podman machine start
+podman-compose up -d --build
 ```
 
-**Windows:**
+## How to run applications from tasks
 
+Task 3:
 ```bash
-.venv\Scripts\activate
+uv run -m tasks.t3_add_applications.echo.echo_app
+uv run -m tasks.t3_add_applications.essay.app_gpt
+uv run -m tasks.t3_add_applications.essay.app_sonnet
 ```
 
-### 4. Install dependencies
-
+Task 4:
 ```bash
-pip install -r requirements.txt
+uv run -m tasks.t4_stage_and_state.t1_simple.poem_assistant
+uv run -m tasks.t4_stage_and_state.t2_calculator_agent.app
 ```
