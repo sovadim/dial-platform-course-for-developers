@@ -71,3 +71,13 @@ Task 4:
 uv run -m tasks.t4_stage_and_state.t1_simple.poem_assistant
 uv run -m tasks.t4_stage_and_state.t2_calculator_agent.app
 ```
+
+Task 5:
+```bash
+uv run -m tasks.t5_files.files_assistant
+```
+
+Task 6:
+```bash
+uv run -m tasks.t6_embeddings_and_frameworks.rag_app
+```

@@ -34,6 +34,11 @@
         "image/jpg"
       ],
       "maxInputAttachments": 3
+    },
+    "microwave-rag": {
+      "displayName": "Microwave RAG",
+      "description": "RAG assistant that can answer questions about microwave usage.",
+      "endpoint": "http://host.docker.internal:5030/openai/deployments/microwave-rag/chat/completions"
     }
   }
 }

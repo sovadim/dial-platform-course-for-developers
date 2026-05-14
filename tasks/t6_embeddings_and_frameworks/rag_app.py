@@ -89,47 +89,55 @@ class MicrowaveRagApp(ChatCompletion):
         stage = _StageProcessor.open_stage(choice, f"RAG Search: {query}")
         stage.append_content(f"## Query:\n```\n{query}\n```\n\n")
 
-        # TODO 3: Perform the similarity search and build the context string.
-        #   - Call self.vectorstore.similarity_search_with_relevance_scores(query, k=k, score_threshold=score)
-        #   - Iterate the result — each item is a (doc, score) tuple; collect doc.page_content into a list
-        #   - Join with "\n\n" to form the result string
-        #   - Append the result to the stage: stage.append_content(f"## Result:\n```\n{result}\n```\n\n")
-        #   - Close the stage safely: _StageProcessor.close_stage_safely(stage)
-        #   - Return result
+        relevant_docs = self.vectorstore.similarity_search_with_relevance_scores(
+            query,
+            k=k,
+            score_threshold=score
+        )
+
+        context_parts = []
+        for (doc, score) in relevant_docs:
+            context_parts.append(doc.page_content)
+
+        result = "\n\n".join(context_parts)
+        stage.append_content(f"## Result:\n```\n{result}\n```\n\n")
+        _StageProcessor.close_stage_safely(stage)
+
+        return result
 
     async def chat_completion(self, request: Request, response: Response) -> None:
         with response.create_single_choice() as choice:
             message_content = request.messages[-1].content
             retrieved_context = self.retrieve_context(message_content, choice)
 
-            # TODO 4: Build the RAG prompt and stream the LLM response.
-            #   - Construct a messages list:
-            #       [SystemMessage(content=SYSTEM_PROMPT),
-            #        HumanMessage(content=f"## Context:\n {retrieved_context}\n\n## Query: \n{message_content}")]
-            #   - Stream via: chunks = self.llm_client.astream(messages)
-            #   - async for chunk in chunks: if chunk.content is truthy, call choice.append_content(chunk.content)
+            messages = [
+                SystemMessage(content=SYSTEM_PROMPT),
+                HumanMessage(content=f"## Context:\n {retrieved_context}\n\n## Query: \n{message_content}")
+            ]
+            chunks = self.llm_client.astream(messages)
+
+            async for chunk in chunks:
+                if content := chunk.content:
+                    choice.append_content(content)
 
 
 _DIAL_URL = "http://localhost:8080"
 _API_KEY = "dial_api_key"
 
-# TODO 1: Create the embeddings client and assign it to `embeddings_client`.
-#   Use AzureOpenAIEmbeddings with:
-#   - deployment: "text-embedding-3-small"
-#   - dimensions: 784  ← must match the pre-built FAISS index; changing it forces a full rebuild
-#   - azure_endpoint: _DIAL_URL
-#   - api_key: SecretStr(_API_KEY)
-embeddings_client = None  # replace with AzureOpenAIEmbeddings(...)
-
-# TODO 2: Create the LLM client and assign it to `llm_client`.
-#   Use AzureChatOpenAI with:
-#   - azure_deployment: "gpt-5.2"
-#   - azure_endpoint: _DIAL_URL
-#   - api_key: SecretStr(_API_KEY)
-#   - api_version: "2025-01-01-preview"
-llm_client = None  # replace with AzureChatOpenAI(...)
-
-rag_app = MicrowaveRagApp(embeddings=embeddings_client, llm_client=llm_client)
+rag_app = MicrowaveRagApp(
+    embeddings=AzureOpenAIEmbeddings(
+        deployment='text-embedding-3-small',
+        dimensions=784,
+        azure_endpoint=_DIAL_URL,
+        api_key=SecretStr(_API_KEY),
+    ),
+    llm_client=AzureChatOpenAI(
+        azure_deployment='gpt-5.2',
+        azure_endpoint=_DIAL_URL,
+        api_key=SecretStr(_API_KEY),
+        api_version="2025-01-01-preview"
+    )
+)
 
 app: DIALApp = DIALApp()
 
