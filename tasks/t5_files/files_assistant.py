@@ -5,6 +5,10 @@ from aidial_client import AsyncDial
 from aidial_sdk import DIALApp
 from aidial_sdk.chat_completion import ChatCompletion, Request, Response, Choice, Stage
 
+from dotenv import load_dotenv
+load_dotenv()
+
+
 SYSTEM_PROMPT = """You are a helpful assistant. Answer questions clearly and concisely. 
 Be honest when you don't know something. 
 Stay friendly, professional, and avoid harmful or misleading content.
@@ -82,17 +86,24 @@ class FilesAssistantApplication(ChatCompletion):
         _StageProcessor.close_stage_safely(stage)
 
     def show_attachments_in_stage(self, choice: Choice, request: Request):
-        # TODO 1: Read incoming attachments from the last message and display each one in a stage.
-        #   - Guard request.messages[-1].custom_content for None (use walrus operator or explicit if-check)
-        #   - Then guard .attachments for None
-        #   - Track `stage` as None before the loop so the finally block can safely close the last opened stage
-        #   - For each attachment:
-        #       - Open a stage: _StageProcessor.open_stage(choice, "Attachment content: ")
-        #       - If attachment.title is not None, append it to the stage header: stage.append_name(attachment.title)
-        #       - For image types ("image/png", "image/jpg"): stage.append_content(f"\n\r![image]({attachment.url})\n\r")
-        #       - For all other types: stage.append_content(f"Unsupported attachment type: {attachment.type}")
-        #   - Always close the last opened stage in a finally block: _StageProcessor.close_stage_safely(stage)
-        raise NotImplementedError()
+        if custom_content := request.messages[-1].custom_content:
+            if attachments := custom_content.attachments:
+                stage: Stage | None = None
+                try:
+                    for attachment in attachments:
+                        stage = _StageProcessor.open_stage(choice, "Attachment content: ")
+                        if attachment.title:
+                            stage.append_name(attachment.title)
+
+                        if attachment.type in ["image/png", "image/jpg"]:
+                            stage.append_content(f"\n\r![image]({attachment.url})\n\r")
+                        else:
+                            stage.append_content(f"Unsupported attachment type: {attachment.type}")
+                except Exception as e:
+                    print(e)
+                finally:
+                    if stage:
+                        _StageProcessor.close_stage_safely(stage)
 
     async def response_to_audio(self, client: AsyncDial, content: list[str], choice: Choice, ):
         audio_content = await client.chat.completions.create(
@@ -113,14 +124,11 @@ class FilesAssistantApplication(ChatCompletion):
         )
 
         try:
-            # TODO 2: Forward audio attachments from the TTS response to both the stage and the choice.
-            #   - Guard audio_content.choices[0].message.custom_content for None
-            #   - Then guard .attachments for None
-            #   - For each attachment:
-            #       stage.add_attachment(**attachment.model_dump())
-            #       choice.add_attachment(**attachment.model_dump())
-            #   This makes the audio file appear both in the stage and as a playable attachment in Chat.
-            raise NotImplementedError()
+            if custom_content := audio_content.choices[0].message.custom_content:
+                if attachments := custom_content.attachments:
+                    for attachment in attachments:
+                        stage.add_attachment(**attachment.model_dump())
+                        choice.add_attachment(**attachment.model_dump())
         except Exception as e:
             print(e)
         finally:
