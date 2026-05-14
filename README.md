@@ -65,3 +65,9 @@ uv run -m tasks.t3_add_applications.echo.echo_app
 uv run -m tasks.t3_add_applications.essay.app_gpt
 uv run -m tasks.t3_add_applications.essay.app_sonnet
 ```
+
+Task 4:
+```bash
+uv run -m tasks.t4_stage_and_state.t1_simple.poem_assistant
+uv run -m tasks.t4_stage_and_state.t2_calculator_agent.app
+```

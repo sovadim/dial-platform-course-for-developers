@@ -5,6 +5,10 @@ from aidial_client import AsyncDial
 from aidial_sdk import DIALApp
 from aidial_sdk.chat_completion import ChatCompletion, Request, Response
 
+from dotenv import load_dotenv
+load_dotenv()
+
+
 SYSTEM_PROMPT = """You are a poetry-focused assistant. Respond to every request by writing a **short poem** of up to 100 tokens.
 
 **Structure:**
@@ -36,12 +40,10 @@ class PoemAssistantApplication(ChatCompletion):
         print(request.messages[-1])
 
         with response.create_single_choice() as choice:
-            # TODO 1: Create and complete a "Greeting Stage" before the LLM call.
-            #   - Create a stage named "Greeting Stage" via choice.create_stage(...)
-            #   - Call .open() on it
-            #   - Call .append_content("Hello from Poem Assistant")
-            #   - Call .close()
-            #   Important: always close a stage — even on error — or the HTTP response will hang.
+            greeting_stage = choice.create_stage("Greeting Stage")
+            greeting_stage.open()
+            greeting_stage.append_content("Hello from Poem Assistant")
+            greeting_stage.close()
 
             chunks = await client.chat.completions.create(
                 deployment_name=self.model,
@@ -70,18 +72,19 @@ class PoemAssistantApplication(ChatCompletion):
                     if delta and delta.content:
                         choice.append_content(delta.content)
                     elif usage := chunk.usage:
-                        raise NotImplementedError()
-                        # TODO 2: Create and complete a usage stage inside this branch.
-                        #   - Create a stage named f"Usage: {self.model}" via choice.create_stage(...)
-                        #   - Call .open() on it
-                        #   - Call .append_content() with usage data formatted as a markdown JSON code block:
-                        #     f"## Arguments:\n```json\n{json.dumps(usage.dict(), indent=2)}\n```\n\n"
-                        #   - Call .close()
+                        usage_stage = choice.create_stage(f"Usage: {self.model}")
+                        usage_stage.open()
+                        usage_stage.append_content(
+                            f"## Arguments:\n```json\n"
+                            f"{json.dumps(usage.dict(), indent=2)}\n"
+                            f"```\n\n"
+                        )
+                        usage_stage.close()
 
 
-# TODO 3: Wire up the DIAL app.
-#   1. Create a DIALApp instance and store it in `app`
-#   2. Register PoemAssistantApplication() under deployment name "poem-assistant"
-#      using app.add_chat_completion(...)
-#   3. Add the if __name__ == "__main__": guard and run uvicorn on port 5027, host "0.0.0.0"
+app: DIALApp = DIALApp()
 
+app.add_chat_completion(deployment_name="poem-assistant", impl=PoemAssistantApplication("gpt-5.2"))
+
+if __name__ == "__main__":
+    uvicorn.run(app, port=5027, host="0.0.0.0")

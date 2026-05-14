@@ -76,12 +76,11 @@ class CalculateTool:
         args = json.loads(tool_call.function.arguments)
         expression = args["expression"]
 
-        # TODO: Show the expression and result inside the stage passed in from the agent.
-        #   - Append the expression to the stage header: stage.append_name(f": {expression}")
-        #     This makes the stage title in Chat read e.g. "calculate: 10 * (3 + 5)"
-        #   - Append the expression in a markdown code block: stage.append_content(...)
-        #   - Call self._calculate(expression) and store the result
-        #   - Append the result: stage.append_content(...)
+        stage.append_name(f": {expression}")
+
+        stage.append_content(f"## Expression\n```\n{expression}\n```\n\n")
+        result = self._calculate(expression)
+        stage.append_content(f"## Result\n```\n{result}\n```\n")
 
         return Message(
             role=Role.TOOL,

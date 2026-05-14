@@ -80,15 +80,18 @@ class CalculatorAgent:
             ]
             tool_messages: list[dict] = await asyncio.gather(*tasks)
 
-            # TODO 2a: Persist this turn's exchange to state before recursing.
-            #   - Append assistant_message.dict(exclude_none=True) to self.state[TOOL_CALL_HISTORY_KEY]
-            #   - Extend self.state[TOOL_CALL_HISTORY_KEY] with tool_messages
-            #   Then recurse so the model can produce its final answer using the tool results:
-            #   return await self.handle_request(deployment_name=..., choice=..., request=...)
+            self.state[TOOL_CALL_HISTORY_KEY].append(assistant_message.dict(exclude_none=True))
+            self.state[TOOL_CALL_HISTORY_KEY].extend(tool_messages)
 
-        # TODO 2b: No tool calls — the model produced its final answer.
-        #   - Call choice.set_state(self.state) to persist tool call history for the next turn
-        #   - Return assistant_message
+            # Recurse so the model can produce its final answer using the tool results:
+            return await self.handle_request(
+                deployment_name=deployment_name,
+                choice=choice,
+                request=request
+            )
+
+        choice.set_state(self.state)
+        return assistant_message
 
     def _prepare_messages(self, messages: list[Message]) -> list[dict]:
         unpacked_messages = unpack_messages(
@@ -113,15 +116,20 @@ class CalculatorAgent:
         return unpacked_messages
 
     async def _process_tool_call(self, tool_call: ToolCall, choice: Choice) -> dict:
-        # TODO 1: Wrap tool execution in a stage.
-        #   - Open the stage: stage = StageProcessor.open_stage(choice, tool_call.function.name)
-        #   - In a try block:
-        #       - Look up the tool: tool = self._tools_dict[tool_call.function.name]
-        #       - Append the arguments as a formatted JSON markdown block to the stage:
-        #         f"## Arguments:\n```json\n{json.dumps(json.loads(tool_call.function.arguments), indent=2)}\n```\n\n"
-        #       - Call: tool_message = await tool.execute(tool_call, stage)
-        #   - In an except block: build a fallback Message(role=Role.TOOL, content=f"Error: {e}", tool_call_id=tool_call.id)
-        #   - In a finally block: StageProcessor.close_stage_safely(stage)
-        #   - return `tool_message.dict(exclude_none=True)`
-        raise NotImplementedError()
+        stage = StageProcessor.open_stage(choice, tool_call.function.name)
+        try:
+            tool = self._tools_dict[tool_call.function.name]
+            stage.append_content(
+                f"## Arguments:\n```json\n{json.dumps(json.loads(tool_call.function.arguments), indent=2)}\n```\n\n"
+            )
+            tool_message = await tool.execute(tool_call, stage)
+        except Exception as e:
+            tool_message = Message(
+                role=Role.TOOL,
+                content=f"Error: {e}",
+                tool_call_id=tool_call.id,
+            )
+        finally:
+            StageProcessor.close_stage_safely(stage)
 
+        return tool_message.dict(exclude_none=True)
